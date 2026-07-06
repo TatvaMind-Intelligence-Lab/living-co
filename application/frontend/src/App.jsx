@@ -1,33 +1,20 @@
-import { useEffect, useState } from "react";
-import { supabase } from "./services/supabase";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Login from "./pages/Login/Login";
+import AuthCallback from "./pages/AuthCallback/AuthCallback";
+import Dashboard from "./pages/Dashboard/Dashboard";
 
 function App() {
-  const [status, setStatus] = useState("Checking connection...");
-
-  useEffect(() => {
-    async function checkConnection() {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) throw error;
-
-        setStatus("✅ Connected to Supabase");
-        console.log(data);
-      } catch (err) {
-        console.error(err);
-        setStatus("❌ Failed to connect");
-      }
-    }
-
-    checkConnection();
-  }, []);
-
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-xl font-semibold">
-        {status}
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
