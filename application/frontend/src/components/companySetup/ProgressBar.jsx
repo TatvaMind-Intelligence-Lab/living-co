@@ -2,29 +2,26 @@ export default function ProgressBar({
   step,
   totalSteps,
 }) {
-
   const progress =
-    (step / (totalSteps - 1)) * 100;
+    ((step + 1) / totalSteps) * 100;
 
   return (
-    <div className="mb-8">
+    <div className="mb-12">
 
-      <div className="flex justify-between text-sm mb-2">
+      <div className="flex items-center justify-between mb-3">
 
-        <span>
-          Step {step + 1} of {totalSteps}
-        </span>
-
-        <span>
-          {Math.round(progress)}%
-        </span>
+        <div>
+          <p className="text-sm font-medium text-gray-500">
+            Step {step + 1} of {totalSteps}
+          </p>
+        </div>
 
       </div>
 
-      <div className="h-2 bg-gray-200 rounded-full">
+      <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
 
         <div
-          className="h-2 bg-black rounded-full transition-all duration-300"
+          className="h-full rounded-full bg-black transition-all duration-500 ease-in-out"
           style={{
             width: `${progress}%`,
           }}
