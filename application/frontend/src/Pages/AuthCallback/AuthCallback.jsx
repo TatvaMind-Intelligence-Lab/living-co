@@ -1,25 +1,24 @@
 import { useEffect } from "react";
-
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
 export default function AuthCallback() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
-    const navigate = useNavigate();
+  useEffect(() => {
+    if (loading) return;
 
-    useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    } else {
+      navigate("/login", { replace: true });
+    }
+  }, [loading, user, navigate]);
 
-        navigate("/dashboard");
-
-    }, []);
-
-    return (
-
-        <div className="min-h-screen flex justify-center items-center">
-
-            Signing you in...
-
-        </div>
-
-    );
-
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <h2 className="text-xl font-semibold">Signing you in...</h2>
+    </div>
+  );
 }

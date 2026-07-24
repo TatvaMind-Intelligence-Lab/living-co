@@ -1,20 +1,52 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login/Login";
-import AuthCallback from "./pages/AuthCallback/AuthCallback";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import CompanySetup from "./pages/CompanySetup/CompanySetup";
+import AuthCallback from "./pages/AuthCallback/AuthCallback";
+
+import ProtectedRoute from "./routes/ProtectedRoute";
+import OnboardingGuard from "./routes/OnboardingGuard";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
+    <Routes>
+      {/* Default */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        <Route path="/auth/callback" element={<AuthCallback />} />
+      {/* Login */}
+      <Route path="/login" element={<Login />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+      {/* OAuth Callback */}
+      <Route path="/auth/callback" element={<AuthCallback />} />
+
+      {/* Company Setup */}
+      <Route
+        path="/company/setup"
+        element={
+          <ProtectedRoute>
+            <OnboardingGuard requireCompany={false}>
+              <CompanySetup />
+            </OnboardingGuard>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Dashboard */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <OnboardingGuard requireCompany={true}>
+              <Dashboard />
+            </OnboardingGuard>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Catch All */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }
 
