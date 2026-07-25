@@ -1,8 +1,8 @@
 export default function IdentityStep({
-  companyData,
-  setCompanyData,
-  errors,
-  setErrors,
+  companyData = {},
+  setCompanyData = () => {},
+  errors = {},
+  setErrors = () => {},
 }) {
   const companySizes = [
     "Solo Founder",
@@ -39,7 +39,7 @@ export default function IdentityStep({
       [field]: value,
     }));
 
-    if (errors[field]) {
+    if (errors?.[field]) {
       setErrors((prev) => ({
         ...prev,
         [field]: "",
@@ -67,7 +67,7 @@ export default function IdentityStep({
           <input
             type="text"
             placeholder="Acme Technologies Pvt. Ltd."
-            value={companyData.name}
+            value={companyData.name || ""}
             onChange={(e) => updateField("name", e.target.value)}
             className={`w-full rounded-xl px-4 py-3 outline-none transition-all duration-200 ${
               errors.name
@@ -94,7 +94,7 @@ export default function IdentityStep({
             rows={5}
             maxLength={250}
             placeholder="Describe your company in a few sentences..."
-            value={companyData.description}
+            value={companyData.description || ""}
             onChange={(e) => updateField("description", e.target.value)}
             className={`w-full rounded-xl px-4 py-3 outline-none transition-all duration-200 ${
               errors.description
@@ -103,15 +103,15 @@ export default function IdentityStep({
             }`}
           />
 
-          {errors.name && (
+          {errors.description && (
             <p className="mt-2 text-sm font-medium text-red-600">
-              {errors.name}
+              {errors.description}
             </p>
           )}
+
           <div className="mt-2 flex justify-between text-sm text-gray-400">
             <span>Maximum 250 characters</span>
-
-            <span>{companyData.description.length}/250</span>
+            <span>{(companyData.description || "").length}/250</span>
           </div>
         </div>
 
@@ -123,9 +123,13 @@ export default function IdentityStep({
           </label>
 
           <select
-            value={companyData.industry}
+            value={companyData.industry || ""}
             onChange={(e) => updateField("industry", e.target.value)}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm transition-all duration-200 focus:border-black focus:ring-4 focus:ring-gray-200 outline-none"
+            className={`w-full rounded-xl bg-white px-4 py-3 outline-none transition-all duration-200 ${
+              errors.industry
+                ? "border border-red-500 focus:ring-4 focus:ring-red-100"
+                : "border border-gray-300 focus:border-black focus:ring-4 focus:ring-gray-200"
+            }`}
           >
             <option value="">Select an industry</option>
 
@@ -135,6 +139,12 @@ export default function IdentityStep({
               </option>
             ))}
           </select>
+
+          {errors.industry && (
+            <p className="mt-2 text-sm font-medium text-red-600">
+              {errors.industry}
+            </p>
+          )}
         </div>
 
         {/* Company Size */}
@@ -175,6 +185,12 @@ export default function IdentityStep({
               </label>
             ))}
           </div>
+
+          {errors.company_size && (
+            <p className="mt-3 text-sm font-medium text-red-600">
+              {errors.company_size}
+            </p>
+          )}
         </div>
       </div>
     </div>

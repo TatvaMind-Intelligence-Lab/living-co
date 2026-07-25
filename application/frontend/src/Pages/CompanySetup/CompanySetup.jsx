@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import SetupLayout from "../../components/companySetup/SetupLayout";
 
@@ -9,6 +10,8 @@ import GoalsStep from "../../components/companySetup/steps/GoalsStep";
 import DNAStep from "../../components/companySetup/steps/DNAStep";
 import AIStep from "../../components/companySetup/steps/AIStep";
 import FinishStep from "../../components/companySetup/steps/FinishStep";
+
+import { createCompany } from "../../services/company.service";
 
 const steps = [
   WelcomeStep,
@@ -21,8 +24,12 @@ const steps = [
 ];
 
 export default function CompanySetup() {
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const [companyData, setCompanyData] = useState({
     // Company
@@ -53,11 +60,9 @@ export default function CompanySetup() {
     const newErrors = {};
 
     switch (step) {
-      // Welcome
       case 0:
         break;
 
-      // Company Identity
       case 1:
         if (!companyData.name.trim())
           newErrors.name = "Company name is required.";
@@ -72,11 +77,10 @@ export default function CompanySetup() {
           newErrors.industry = "Please select an industry.";
 
         if (!companyData.company_size)
-          newErrors.company_size = "Select your company size.";
+          newErrors.company_size = "Please select your company size.";
 
         break;
 
-      // Customers & Business
       case 2:
         if (companyData.customers.length === 0)
           newErrors.customers = "Select at least one customer type.";
@@ -87,7 +91,6 @@ export default function CompanySetup() {
 
         break;
 
-      // Goals
       case 3:
         if (!companyData.annual_goal.trim())
           newErrors.annual_goal = "Tell us your primary business goal.";
@@ -99,7 +102,6 @@ export default function CompanySetup() {
 
         break;
 
-      // DNA
       case 4:
         if (!companyData.decision_style)
           newErrors.decision_style = "Choose your decision-making style.";
@@ -109,7 +111,6 @@ export default function CompanySetup() {
 
         break;
 
-      // AI
       case 5:
         if (!companyData.ai_expectations.trim())
           newErrors.ai_expectations = "Tell us what you expect from your AI.";
@@ -128,16 +129,39 @@ export default function CompanySetup() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = () => {
-    const isValid = validateStep();
+  const handleCreateCompany = async () => {
+    try {
+      setLoading(true);
+      setSubmitError("");
 
-    if (!isValid) return;
+      await createCompany(companyData);
 
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+
+      setSubmitError(
+        error.response?.data?.detail ||
+          "Unable to create your company. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const nextStep = async () => {
+    const valid = validateStep();
+
+    if (!valid) return;
+
+    // Normal navigation
     if (step < steps.length - 1) {
       setStep((prev) => prev + 1);
-    } else {
-      console.log("Ready to create company");
+      return;
     }
+
+    // Last step -> Create Company
+    await handleCreateCompany();
   };
 
   const prevStep = () => {
@@ -147,6 +171,10 @@ export default function CompanySetup() {
   };
 
   const CurrentStep = steps[step];
+  console.log("Step:", step);
+  console.log("Current Step:", steps[step]?.name);
+  console.log("Errors:", errors);
+  console.log("Company Data:", companyData);
 
   return (
     <SetupLayout
@@ -154,12 +182,21 @@ export default function CompanySetup() {
       totalSteps={steps.length}
       onNext={nextStep}
       onBack={prevStep}
+      loading={loading}
+      isLastStep={step === steps.length - 1}
     >
+      {submitError && (
+        <div className="mb-6 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700">
+          {submitError}
+        </div>
+      )}
+
       <CurrentStep
         companyData={companyData}
         setCompanyData={setCompanyData}
         errors={errors}
         setErrors={setErrors}
+        loading={loading}
       />
     </SetupLayout>
   );

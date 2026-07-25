@@ -16,3 +16,8 @@ export async function getMe() {
   const response = await api.get("/auth/me");
   return response.data;
 }
+
+export async function updateCompany(companyData) {
+  const response = await api.patch("/company", companyData);
+  return response.data;
+}
