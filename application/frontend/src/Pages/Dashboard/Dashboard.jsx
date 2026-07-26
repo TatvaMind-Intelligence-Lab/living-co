@@ -1,72 +1,81 @@
-import useAuth from "../../hooks/useAuth";
-import { logout } from "../../services/auth.service";
-import { useEffect } from "react";
-import { getMe } from "../../services/company.service";
+import { useEffect, useState } from "react";
+
+import DashboardLayout from "../../components/dashboard/layout/DashboardLayout";
+
+import HeroCard from "../../components/dashboard/cards/HeroCard";
+import CompanyOverview from "../../components/dashboard/cards/CompanyOverview";
+import QuickActions from "../../components/dashboard/cards/QuickActions";
+import ProgressCard from "../../components/dashboard/cards/ProgressCard";
+import NextSteps from "../../components/dashboard/cards/NextSteps";
+import RecentActivity from "../../components/dashboard/cards/RecentActivity";
+import AIInsight from "../../components/dashboard/cards/AIInsight";
+import { calculateAIReadiness } from "../../utils/calculateAIReadiness";
+
+import { getCompany } from "../../services/company.service";
 
 export default function Dashboard() {
-  const { user, session, loading } = useAuth();
+  const [companyData, setCompanyData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const aiReadiness = calculateAIReadiness(companyData?.profile);
 
   useEffect(() => {
-    async function test() {
+    async function loadCompany() {
       try {
-        const data = await getMe();
-        console.log(data);
-      } catch (err) {
-        console.error(err);
+        const data = await getCompany();
+
+        console.log("Company Data:", data);
+
+        setCompanyData(data);
+      } catch (error) {
+        console.error("Failed to load company:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
-    test();
+    loadCompany();
   }, []);
 
   if (loading) {
-    return <h1>Loading...</h1>;
+    return (
+      <DashboardLayout>
+        <div className="flex h-[70vh] items-center justify-center">
+          <p className="text-lg font-medium text-gray-500">
+            Loading Dashboard...
+          </p>
+        </div>
+      </DashboardLayout>
+    );
   }
 
-  console.log("===== AUTH DEBUG =====");
-
-  console.log("USER");
-  console.log(user);
-
-  console.log("SESSION");
-  console.log(session);
-
-  console.log("ACCESS TOKEN");
-  console.log(session?.access_token);
-
-  console.log("USER ID");
-  console.log(user?.id);
-
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Hero */}
+        <HeroCard company={companyData?.company} aiReadiness={aiReadiness} />
+        {/* Overview + Progress */}
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="xl:col-span-2">
+            <CompanyOverview data={companyData} />
+          </div>
 
-      <hr className="my-6" />
+          <ProgressCard profile={companyData?.profile} />
+        </div>
+        Quick Actions
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <QuickActions />
 
-      <h2>
-        <strong>Email:</strong> {user?.email}
-      </h2>
+          <NextSteps />
+        </div>
+        {/* Bottom Section */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <RecentActivity />
+          </div>
 
-      <h2>
-        <strong>User ID:</strong> {user?.id}
-      </h2>
-
-      <h2 className="mt-4">
-        <strong>Access Token:</strong>
-      </h2>
-
-      <textarea
-        className="w-full h-48 border p-3 mt-2"
-        readOnly
-        value={session?.access_token || ""}
-      />
-
-      <button
-        onClick={logout}
-        className="mt-6 bg-red-500 text-white px-6 py-3 rounded"
-      >
-        Logout
-      </button>
-    </div>
+          <AIInsight />
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }
