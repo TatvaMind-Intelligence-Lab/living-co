@@ -10,6 +10,7 @@ import NextSteps from "../../components/dashboard/cards/NextSteps";
 import RecentActivity from "../../components/dashboard/cards/RecentActivity";
 import AIInsight from "../../components/dashboard/cards/AIInsight";
 import { calculateAIReadiness } from "../../utils/calculateAIReadiness";
+import DashboardSkeleton from "../../components/dashboard/skeleton/DashboardSkeleton";
 
 import { getCompany } from "../../services/company.service";
 
@@ -39,11 +40,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex h-[70vh] items-center justify-center">
-          <p className="text-lg font-medium text-gray-500">
-            Loading Dashboard...
-          </p>
-        </div>
+        <DashboardSkeleton />
       </DashboardLayout>
     );
   }
@@ -65,7 +62,10 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <QuickActions />
 
-          <NextSteps />
+          <NextSteps
+            company={companyData?.company}
+            profile={companyData?.profile}
+          />
         </div>
         {/* Bottom Section */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -73,7 +73,10 @@ export default function Dashboard() {
             <RecentActivity />
           </div>
 
-          <AIInsight />
+          <AIInsight
+            company={companyData?.company}
+            profile={companyData?.profile}
+          />
         </div>
       </div>
     </DashboardLayout>
