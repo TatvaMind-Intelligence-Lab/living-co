@@ -4,6 +4,7 @@ import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import CompanySetup from "./pages/CompanySetup/CompanySetup";
 import AuthCallback from "./pages/AuthCallback/AuthCallback";
+import Settings from "./pages/Settings/Settings";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import OnboardingGuard from "./routes/OnboardingGuard";
@@ -42,6 +43,16 @@ function App() {
             </OnboardingGuard>
           </ProtectedRoute>
         }
+      />
+      <Route 
+      path="/dashboard/settings"
+      element={
+        <ProtectedRoute>
+          <OnboardingGuard requireCompany={true}>
+            <Settings />
+          </OnboardingGuard>
+        </ProtectedRoute>
+      }
       />
 
       {/* Catch All */}
